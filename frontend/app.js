@@ -8,7 +8,7 @@ fetch(`${API_BASE_URL}/health`).catch(() => {
 console.log("Waking backend...");
 });
 
-// Retry fetch (for Render cold start)
+// Retry fetch
 async function fetchWithRetry(url, options = {}, retries = 3) {
 try {
 const response = await fetch(url, options);
@@ -63,10 +63,8 @@ const data = await response.json();
     document.getElementById('monthlyCost').textContent = `$${data.summary.total_monthly_cost.toLocaleString()}`;
     document.getElementById('potentialSavings').textContent = `Potential savings: $${data.summary.total_optimization_potential.toLocaleString()}`;
 
-    console.log('Summary loaded:', data.summary);
 } catch (error) {
     console.error('Error loading summary:', error);
-    showError('Backend waking up... please wait');
 }
 ```
 
@@ -87,9 +85,8 @@ const data = await response.json();
     displayCriticalFindings(data.critical_findings);
     displayTopMisconfigurations(data.top_misconfiguration_types);
 
-    console.log('Security analysis loaded');
 } catch (error) {
-    console.error('Error loading security analysis:', error);
+    console.error(error);
 }
 ```
 
@@ -105,9 +102,8 @@ const data = await response.json();
     createCostChart(data.cost_by_resource_type);
     displayOptimizationOpportunities(data.top_optimization_opportunities);
 
-    console.log('Cost analysis loaded');
 } catch (error) {
-    console.error('Error loading cost analysis:', error);
+    console.error(error);
 }
 ```
 
@@ -122,9 +118,8 @@ const data = await response.json();
 ```
     displayRecommendations(data.security_recommendations, data.cost_recommendations);
 
-    console.log('Recommendations loaded');
 } catch (error) {
-    console.error('Error loading recommendations:', error);
+    console.error(error);
 }
 ```
 
@@ -141,9 +136,7 @@ severityChart = new Chart(ctx, {
     data: {
         labels: Object.keys(data),
         datasets: [{
-            label: 'Issues',
-            data: Object.values(data),
-            backgroundColor: ['#dc3545', '#fd7e14', '#ffc107', '#28a745']
+            data: Object.values(data)
         }]
     }
 });
@@ -154,8 +147,6 @@ severityChart = new Chart(ctx, {
 function createCostChart(data) {
 const ctx = document.getElementById('costChart').getContext('2d');
 if (costChart) costChart.destroy();
-
-```
 costChart = new Chart(ctx, {
     type: 'doughnut',
     data: {
@@ -165,19 +156,17 @@ costChart = new Chart(ctx, {
         }]
     }
 });
-```
-
 }
 
-// UI Render
+// UI
 function displayAIInsights(insights) {
 document.getElementById('aiInsights').innerHTML =
-insights.map(i => `<div>🤖 ${i}</div>`).join('');
+insights.map(i => `<div>${i}</div>`).join('');
 }
 
 function displayCriticalFindings(findings) {
 document.getElementById('criticalFindings').innerHTML =
-findings.map(f => `<div>⚠️ ${f.type}</div>`).join('');
+findings.map(f => `<div>${f.type}</div>`).join('');
 }
 
 function displayTopMisconfigurations(misconfigs) {
@@ -201,15 +190,10 @@ await fetchWithRetry(`${API_BASE_URL}/regenerate-data`, { method: 'POST' });
 initDashboard();
 }
 
-// Time update
+// Time
 function updateLastUpdate() {
 document.getElementById('lastUpdate').textContent =
 `Last updated: ${new Date().toLocaleTimeString()}`;
-}
-
-// Error
-function showError(msg) {
-console.error(msg);
 }
 
 // Events
