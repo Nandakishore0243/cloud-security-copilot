@@ -7,7 +7,7 @@ import uuid
 from datetime import datetime, timedelta
 
 app = Flask(__name__)
-CORS(app)
+CORS(app,origins="*")
 
 # Simple data generator
 def generate_sample_data():
@@ -66,7 +66,7 @@ def generate_sample_data():
                 'severity': severity,
                 'description': f'{severity} severity security issue detected in {resource["name"]}',
                 'detected_at': (datetime.now() - timedelta(hours=random.randint(1, 168))).isoformat(),
-                'remediation_steps': self.generate_remediation(severity) if 'self' in locals() else f'Fix the {severity.lower()} severity issue immediately',
+                'remediation_steps': generate_remediation(severity),
                 'estimated_risk_score': {'Critical': 9, 'High': 7, 'Medium': 4, 'Low': 2}.get(severity, 5)
             }
             misconfigs.append(misconfig)
@@ -315,13 +315,6 @@ def regenerate_data():
         'summary': cloud_data['summary']
     })
 
-if __name__ == '__main__':
-    print("\n" + "="*60)
-    print("🚀 Cloud Security Copilot - AI-Powered Risk & Cost Optimization")
-    print("="*60)
-    print(f"📍 Backend API: http://localhost:5001")
-    print(f"📍 Health Check: http://localhost:5001/api/health")
-    print(f"📍 API Documentation: http://localhost:5001/")
-    print("="*60)
-    print("\n✅ Server is ready! Press Ctrl+C to stop\n")
-    app.run(debug=True, port=5001, host='0.0.0.0')
+if __name__ == "__main__":
+    port = int(os.environ.get("PORT", 10000))
+    app.run(host="0.0.0.0", port=port)
