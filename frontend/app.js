@@ -116,16 +116,24 @@ function createSeverityChart(data) {
 
     if (severityChart) severityChart.destroy();
 
+    // normalize keys (IMPORTANT FIX)
+    const normalized = {
+        critical: data.critical || data.Critical || 0,
+        high: data.high || data.High || 0,
+        medium: data.medium || data.Medium || 0,
+        low: data.low || data.Low || 0
+    };
+
     severityChart = new Chart(ctx, {
         type: 'bar',
         data: {
             labels: ['Critical', 'High', 'Medium', 'Low'],
             datasets: [{
                 data: [
-                    data.critical || 0,
-                    data.high || 0,
-                    data.medium || 0,
-                    data.low || 0
+                    normalized.critical,
+                    normalized.high,
+                    normalized.medium,
+                    normalized.low
                 ]
             }]
         }
